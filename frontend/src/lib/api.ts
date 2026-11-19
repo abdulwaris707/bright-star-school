@@ -7,7 +7,7 @@
 const API_BASE_URL =
   (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL
     ? import.meta.env.VITE_API_URL.replace(/\/+$/, "")
-    : "http://localhost:4000/api");
+    : (typeof import.meta !== "undefined" && import.meta.env?.PROD ? "/api" : "http://localhost:4000/api"));
 
 export interface ApiRequestOptions extends Omit<RequestInit, "body"> {
   params?: Record<string, string | number | boolean | undefined>;

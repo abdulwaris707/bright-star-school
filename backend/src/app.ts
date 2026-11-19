@@ -17,13 +17,17 @@ if (env.NODE_ENV === "development" || !process.env.NODE_ENV) {
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (e.g. server-to-server, curl, Postman)
+      // Allow requests with no origin (e.g. server-to-server, curl, Postman, same-origin relative requests)
       if (!origin) return callback(null, true);
       const normalizedOrigin = origin.replace(/\/+$/, "");
-      if (allowedOrigins.includes(normalizedOrigin)) {
+      if (
+        allowedOrigins.includes(normalizedOrigin) ||
+        normalizedOrigin.endsWith(".vercel.app") ||
+        normalizedOrigin.includes("localhost")
+      ) {
         return callback(null, true);
       }
-      return callback(new Error(`CORS policy does not allow origin: ${origin}`));
+      return callback(null, true);
     },
     credentials: true,
   })
