@@ -1,37 +1,55 @@
-import { neon, NeonQueryFunction } from "@neondatabase/serverless";
-import { drizzle, NeonHttpDatabase } from "drizzle-orm/neon-http";
+import { Pool } from "pg";
+import { drizzle, NodePgDatabase } from "drizzle-orm/node-postgres";
 import env from "../config/env";
+import * as schema from "./schema";
 
-let sqlClient: NeonQueryFunction<boolean, boolean> | null = null;
-let db: NeonHttpDatabase | null = null;
+let pool: Pool | null = null;
+let db: NodePgDatabase<typeof schema> | null = null;
 
-if (env.DATABASE_URL && env.DATABASE_URL.trim() !== "") {
+function getCleanConnectionString(rawUrl: string): string {
+  // Strip query parameters that cause self-signed certificate warnings with cloud poolers
+  return rawUrl.split("?")[0];
+}
+
+const dbUrl = env.DATABASE_URL && env.DATABASE_URL.trim() !== "" ? env.DATABASE_URL : process.env.DATABASE_URL;
+
+if (dbUrl && dbUrl.trim() !== "") {
   try {
-    sqlClient = neon(env.DATABASE_URL);
-    db = drizzle({ client: sqlClient });
+    const connStr = getCleanConnectionString(dbUrl);
+    pool = new Pool({
+      connectionString: connStr,
+      ssl: { rejectUnauthorized: false },
+    });
+    db = drizzle(pool, { schema });
   } catch (err) {
-    console.warn("Neon database client initialization deferred:", err);
+    console.warn("Database client initialization deferred:", err);
   }
 }
 
 /**
- * Checks whether Neon Postgres is reachable by running a simple 'SELECT 1'.
+ * Checks whether PostgreSQL is reachable by running a simple 'SELECT 1'.
  */
 export async function checkDbConnection(): Promise<boolean> {
-  if (!env.DATABASE_URL || env.DATABASE_URL.trim() === "") {
+  const activeUrl = env.DATABASE_URL || process.env.DATABASE_URL;
+  if (!activeUrl || activeUrl.trim() === "") {
     return false;
   }
   try {
-    const runner = sqlClient || neon(env.DATABASE_URL);
-    const result = await runner`SELECT 1 as ok`;
-    if (Array.isArray(result)) {
-      return result.length > 0;
+    if (!pool) {
+      const connStr = getCleanConnectionString(activeUrl);
+      pool = new Pool({
+        connectionString: connStr,
+        ssl: { rejectUnauthorized: false },
+      });
+      db = drizzle(pool, { schema });
     }
-    return Boolean(result);
+    const result = await pool.query("SELECT 1 as ok");
+    return result.rowCount ? result.rowCount > 0 : true;
   } catch (error) {
+    console.error("Database connection check failed:", error);
     return false;
   }
 }
 
-export { sqlClient as sql, db };
+export { pool, db };
 export default db;
