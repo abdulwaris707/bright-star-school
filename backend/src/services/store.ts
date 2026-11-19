@@ -1,3 +1,5 @@
+import dbBridge from "./dbBridge";
+
 export interface StudentRecord {
   id: number;
   rollNo: string;
@@ -1472,6 +1474,7 @@ class SchoolStore {
       });
     }
 
+    dbBridge.persistStudent(newStudent);
     return newStudent;
   }
 
@@ -1504,6 +1507,7 @@ class SchoolStore {
       });
     }
 
+    dbBridge.persistStudent(this.students[idx]);
     return this.students[idx];
   }
 
@@ -1532,6 +1536,7 @@ class SchoolStore {
       });
     }
 
+    dbBridge.persistStudent(this.students[idx]);
     return true;
   }
 
@@ -1784,6 +1789,10 @@ class SchoolStore {
       });
     }
 
+    this.attendance
+      .filter((a) => records.some((r) => r.studentId === a.studentId && r.date === a.date))
+      .forEach((a) => dbBridge.persistAttendance(a));
+
     return count;
   }
 
@@ -1908,6 +1917,7 @@ class SchoolStore {
       this.triggerTeacherAbsentNotification(this.teacherAttendance[idx].teacherId, this.teacherAttendance[idx].date, remarks);
     }
 
+    dbBridge.persistTeacherAttendance(this.teacherAttendance[idx]);
     return this.teacherAttendance[idx];
   }
 
@@ -1962,6 +1972,7 @@ class SchoolStore {
       this.triggerTeacherAbsentNotification(teacherId, date, remarks);
     }
 
+    dbBridge.persistTeacherAttendance(rec);
     return rec;
   }
 
@@ -2017,6 +2028,7 @@ class SchoolStore {
       newValue: `Submitted ${leaveType} leave for ${startDate} to ${endDate}`,
     });
 
+    dbBridge.persistLeave(leaveRec);
     return leaveRec;
   }
 
@@ -2047,6 +2059,7 @@ class SchoolStore {
       newValue: `${status.toUpperCase()} leave. Substitute: ${substituteTeacherName || "None"}`,
     });
 
+    dbBridge.persistLeave(this.teacherLeaves[idx]);
     return this.teacherLeaves[idx];
   }
 
@@ -2083,6 +2096,7 @@ class SchoolStore {
       createdAt: new Date().toISOString(),
     };
     this.adminNotifications.unshift(notification);
+    dbBridge.persistNotification(notification);
     return notification;
   }
 
@@ -2090,6 +2104,7 @@ class SchoolStore {
     const notif = this.adminNotifications.find((n) => n.id === id);
     if (notif) {
       notif.isRead = true;
+      dbBridge.persistNotification(notif);
       return true;
     }
     return false;
@@ -2131,6 +2146,7 @@ class SchoolStore {
       });
     }
 
+    dbBridge.persistHomework(newHomework);
     return newHomework;
   }
 
@@ -2154,6 +2170,7 @@ class SchoolStore {
       });
     }
 
+    dbBridge.persistHomework(this.homework[idx]);
     return this.homework[idx];
   }
 
@@ -2173,7 +2190,7 @@ class SchoolStore {
         newValue: `Deleted homework: ${removed.title}`,
       });
     }
-
+    dbBridge.deleteHomework(id);
     return true;
   }
 
@@ -2352,6 +2369,7 @@ class SchoolStore {
       });
     }
 
+    generated.forEach((f) => dbBridge.persistFee(f));
     return { generatedCount: generated.length, fees: generated };
   }
 
@@ -2382,6 +2400,7 @@ class SchoolStore {
       });
     }
 
+    dbBridge.persistFee(this.fees[idx]);
     return this.fees[idx];
   }
 
@@ -2425,6 +2444,7 @@ class SchoolStore {
       });
     }
 
+    dbBridge.persistFee(this.fees[idx]);
     return this.fees[idx];
   }
 
@@ -2448,6 +2468,7 @@ class SchoolStore {
         newValue: `Marked Challan #${this.fees[idx].challanNo} as paid via ${paymentMethod}`,
       });
     }
+    dbBridge.persistFee(this.fees[idx]);
     return this.fees[idx];
   }
 
@@ -2541,6 +2562,7 @@ class SchoolStore {
       });
     }
 
+    generated.forEach((s) => dbBridge.persistSalary(s));
     return { generatedCount: generated.length, records: generated };
   }
 
@@ -2570,6 +2592,7 @@ class SchoolStore {
       });
     }
 
+    dbBridge.persistSalary(this.teacherSalaries[idx]);
     return this.teacherSalaries[idx];
   }
 
@@ -2623,6 +2646,7 @@ class SchoolStore {
       });
     }
 
+    dbBridge.persistSalary(this.teacherSalaries[idx]);
     return this.teacherSalaries[idx];
   }
 
@@ -2676,6 +2700,19 @@ class SchoolStore {
       principalSignature: "Prof. Tariq Mehmood",
     };
   }
+
+  // Raw Setters for Real-Time Supabase Synchronization
+  setRawSubjects(list: SubjectRecord[]) { if (list.length > 0) this.subjects = list; }
+  setRawTeachers(list: TeacherRecord[]) { if (list.length > 0) this.teachers = list; }
+  setRawClasses(list: ClassRecord[]) { if (list.length > 0) this.classes = list; }
+  setRawStudents(list: StudentRecord[]) { if (list.length > 0) this.students = list; }
+  setRawFees(list: FeeRecord[]) { if (list.length > 0) this.fees = list; }
+  setRawSalaries(list: TeacherSalaryRecord[]) { if (list.length > 0) this.teacherSalaries = list; }
+  setRawAttendance(list: AttendanceRecord[]) { if (list.length > 0) this.attendance = list; }
+  setRawTeacherAttendance(list: TeacherAttendanceRecord[]) { if (list.length > 0) this.teacherAttendance = list; }
+  setRawTeacherLeaves(list: TeacherLeaveRecord[]) { if (list.length > 0) this.teacherLeaves = list; }
+  setRawHomework(list: HomeworkRecord[]) { if (list.length > 0) this.homework = list; }
+  setRawNotifications(list: AdminNotificationRecord[]) { if (list.length > 0) this.adminNotifications = list; }
 
   getNotices(audience?: string): NoticeRecord[] {
     if (!audience || audience === "all") return [...this.notices];

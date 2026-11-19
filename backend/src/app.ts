@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import env from "./config/env";
 import apiRoutes from "./routes";
+import store from "./services/store";
+import dbBridge from "./services/dbBridge";
 
 const app = express();
 
@@ -35,6 +37,16 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Real-time Supabase PostgreSQL synchronization middleware
+app.use(async (_req, _res, next) => {
+  try {
+    await dbBridge.ensureSynced(store);
+  } catch (err) {
+    console.error("DB sync middleware non-fatal error:", err);
+  }
+  next();
+});
 
 // Mount all API routes under /api
 app.use("/api", apiRoutes);
