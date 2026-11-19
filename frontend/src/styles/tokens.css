@@ -1,0 +1,119 @@
+:root {
+  /* Typography */
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-size-xs: 11px;
+  --font-size-sm: 13px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+
+  /* Spacing Scale (4, 8, 12, 16, 20, 24) */
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+
+  /* Modern Smooth Roundness Scale */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-full: 9999px;
+
+  /* Transition */
+  --transition-fast: background-color 140ms ease, color 140ms ease, border-color 140ms ease, box-shadow 140ms ease, transform 100ms ease;
+
+  /* Accent (Primary Blue #2563eb for buttons & interactive elements) */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-subtle: #f0f4ff;
+  --color-primary-text: #ffffff;
+  --color-focus-ring: rgba(37, 99, 235, 0.22);
+
+  /* Danger */
+  --color-danger: #dc2626;
+  --color-danger-hover: #b91c1c;
+  --color-danger-bg: #fef2f2;
+  --color-danger-border: #fecaca;
+
+  /* Status Colors */
+  --color-status-active-bg: #f0fdf4;
+  --color-status-active-text: #15803d;
+  --color-status-active-border: #bbf7d0;
+
+  --color-status-inactive-bg: #fef2f2;
+  --color-status-inactive-text: #b91c1c;
+  --color-status-inactive-border: #fecaca;
+
+  --color-status-neutral-bg: #f4f4f5;
+  --color-status-neutral-text: #52525b;
+  --color-status-neutral-border: #e4e4e7;
+
+  /* Light Theme (Clean Pure Neutral Palette - Zero Blue Tint in Backgrounds) */
+  --color-bg: #fafafa;
+  --color-bg-subtle: #f4f4f5;
+  --color-bg-sidebar: #ffffff;
+  --color-bg-header: #ffffff;
+  --color-bg-card: #ffffff;
+  --color-bg-hover: #f4f4f5;
+
+  --color-text: #18181b;
+  --color-text-muted: #71717a;
+  --color-text-light: #a1a1aa;
+
+  --color-border: #e4e4e7;
+  --color-border-dark: #d4d4d8;
+  --color-border-subtle: #f4f4f5;
+
+  --color-input-bg: #ffffff;
+  --color-input-border: #d4d4d8;
+  --color-input-focus: #2563eb;
+}
+
+[data-theme="dark"] {
+  /* Dark Theme: True Pitch Black & Neutral Darks - Zero Blue Background */
+  --color-bg: #000000;
+  --color-bg-subtle: #0f0f11;
+  --color-bg-sidebar: #050505;
+  --color-bg-header: #050505;
+  --color-bg-card: #0d0d10;
+  --color-bg-hover: #1c1c20;
+
+  --color-primary-subtle: #17171c;
+  --color-focus-ring: rgba(37, 99, 235, 0.4);
+
+  --color-text: #f4f4f6;
+  --color-text-muted: #9e9ea7;
+  --color-text-light: #71717a;
+
+  --color-border: #222226;
+  --color-border-dark: #333338;
+  --color-border-subtle: #17171a;
+
+  --color-input-bg: #09090b;
+  --color-input-border: #27272a;
+  --color-input-focus: #3b82f6;
+
+  /* Danger & Statuses in Dark */
+  --color-danger-bg: #2d0e0e;
+  --color-danger-border: #5a1a1a;
+
+  --color-status-active-bg: #072714;
+  --color-status-active-text: #4ade80;
+  --color-status-active-border: #14532d;
+
+  --color-status-inactive-bg: #2d0e0e;
+  --color-status-inactive-text: #f87171;
+  --color-status-inactive-border: #5a1a1a;
+
+  --color-status-neutral-bg: #18181b;
+  --color-status-neutral-text: #a1a1aa;
+  --color-status-neutral-border: #27272a;
+}

@@ -1,0 +1,23 @@
+{
+  "name": "bright-star-school-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Comprehensive School Management System with Admin, Teacher, and Student portals",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "start": "cd frontend && npm run preview",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "test": "npm --prefix backend test"
+  },
+  "keywords": [
+    "school-management-system",
+    "education",
+    "react",
+    "typescript",
+    "express",
+    "vite"
+  ],
+  "author": "abdulwaris707",
+  "license": "ISC"
+}
