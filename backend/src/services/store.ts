@@ -257,7 +257,11 @@ export interface TeacherSalaryRecord {
   grossSalary: number;
   totalDeductions: number;
   netSalary: number;
-  status: "paid" | "pending" | "processing";
+  paidAmount?: number;
+  remainingSalary?: number;
+  advanceAmount?: number;
+  advanceDate?: string;
+  status: "paid" | "pending" | "processing" | "advance";
   paymentDate?: string;
   paymentMethod?: string;
   transactionRef?: string;
@@ -911,11 +915,40 @@ class SchoolStore {
   ];
 
   private marks: MarkRecord[] = [
+    // Student 1: Muhammad Hamza (Class 10 - Blue, Class 1)
     { id: 1, studentId: 1, studentName: "Muhammad Hamza", rollNo: "BS-2024-101", classId: 1, examType: "Mid-Term", subject: "Physics", totalMarks: 100, obtainedMarks: 94, grade: "A+", remarks: "Outstanding conceptual mastery" },
     { id: 2, studentId: 1, studentName: "Muhammad Hamza", rollNo: "BS-2024-101", classId: 1, examType: "Mid-Term", subject: "Mathematics", totalMarks: 100, obtainedMarks: 98, grade: "A+", remarks: "Perfect problem solving" },
     { id: 3, studentId: 1, studentName: "Muhammad Hamza", rollNo: "BS-2024-101", classId: 1, examType: "Mid-Term", subject: "Chemistry", totalMarks: 100, obtainedMarks: 88, grade: "A", remarks: "Great lab and theory work" },
     { id: 4, studentId: 1, studentName: "Muhammad Hamza", rollNo: "BS-2024-101", classId: 1, examType: "Mid-Term", subject: "English Literature", totalMarks: 100, obtainedMarks: 85, grade: "A", remarks: "Fluent expression" },
     { id: 5, studentId: 1, studentName: "Muhammad Hamza", rollNo: "BS-2024-101", classId: 1, examType: "Mid-Term", subject: "Computer Science", totalMarks: 100, obtainedMarks: 96, grade: "A+", remarks: "Exemplary code quality" },
+
+    // Student 2: Ayesha Fatima (Class 10 - Blue, Class 1)
+    { id: 6, studentId: 2, studentName: "Ayesha Fatima", rollNo: "BS-2024-102", classId: 1, examType: "Mid-Term", subject: "Physics", totalMarks: 100, obtainedMarks: 91, grade: "A+", remarks: "Consistent excellence" },
+    { id: 7, studentId: 2, studentName: "Ayesha Fatima", rollNo: "BS-2024-102", classId: 1, examType: "Mid-Term", subject: "Mathematics", totalMarks: 100, obtainedMarks: 92, grade: "A+", remarks: "Strong analytical grasp" },
+    { id: 8, studentId: 2, studentName: "Ayesha Fatima", rollNo: "BS-2024-102", classId: 1, examType: "Mid-Term", subject: "Chemistry", totalMarks: 100, obtainedMarks: 95, grade: "A+", remarks: "Top in practicals" },
+    { id: 9, studentId: 2, studentName: "Ayesha Fatima", rollNo: "BS-2024-102", classId: 1, examType: "Mid-Term", subject: "English Literature", totalMarks: 100, obtainedMarks: 89, grade: "A", remarks: "Great writing skills" },
+    { id: 10, studentId: 2, studentName: "Ayesha Fatima", rollNo: "BS-2024-102", classId: 1, examType: "Mid-Term", subject: "Computer Science", totalMarks: 100, obtainedMarks: 90, grade: "A+", remarks: "Clean implementation" },
+
+    // Student 3: Bilal Ahmed Khan (Class 10 - Green, Class 2)
+    { id: 11, studentId: 3, studentName: "Bilal Ahmed Khan", rollNo: "BS-2024-103", classId: 2, examType: "Mid-Term", subject: "Physics", totalMarks: 100, obtainedMarks: 78, grade: "B", remarks: "Good effort, focus on formulas" },
+    { id: 12, studentId: 3, studentName: "Bilal Ahmed Khan", rollNo: "BS-2024-103", classId: 2, examType: "Mid-Term", subject: "Mathematics", totalMarks: 100, obtainedMarks: 82, grade: "A", remarks: "Solid algebra performance" },
+    { id: 13, studentId: 3, studentName: "Bilal Ahmed Khan", rollNo: "BS-2024-103", classId: 2, examType: "Mid-Term", subject: "Chemistry", totalMarks: 100, obtainedMarks: 75, grade: "B", remarks: "Organic chemistry needs revision" },
+    { id: 14, studentId: 3, studentName: "Bilal Ahmed Khan", rollNo: "BS-2024-103", classId: 2, examType: "Mid-Term", subject: "English Literature", totalMarks: 100, obtainedMarks: 80, grade: "A", remarks: "Good comprehension" },
+    { id: 15, studentId: 3, studentName: "Bilal Ahmed Khan", rollNo: "BS-2024-103", classId: 2, examType: "Mid-Term", subject: "Computer Science", totalMarks: 100, obtainedMarks: 84, grade: "A", remarks: "Good lab practice" },
+
+    // Student 4: Zainab Noor (Class 9 - Blue, Class 3)
+    { id: 16, studentId: 4, studentName: "Zainab Noor", rollNo: "BS-2024-104", classId: 3, examType: "Mid-Term", subject: "Physics", totalMarks: 100, obtainedMarks: 86, grade: "A", remarks: "Clear understanding" },
+    { id: 17, studentId: 4, studentName: "Zainab Noor", rollNo: "BS-2024-104", classId: 3, examType: "Mid-Term", subject: "Mathematics", totalMarks: 100, obtainedMarks: 89, grade: "A", remarks: "High accuracy" },
+    { id: 18, studentId: 4, studentName: "Zainab Noor", rollNo: "BS-2024-104", classId: 3, examType: "Mid-Term", subject: "Chemistry", totalMarks: 100, obtainedMarks: 84, grade: "A", remarks: "Attentive student" },
+    { id: 19, studentId: 4, studentName: "Zainab Noor", rollNo: "BS-2024-104", classId: 3, examType: "Mid-Term", subject: "English Literature", totalMarks: 100, obtainedMarks: 92, grade: "A+", remarks: "Outstanding essay writing" },
+    { id: 20, studentId: 4, studentName: "Zainab Noor", rollNo: "BS-2024-104", classId: 3, examType: "Mid-Term", subject: "Computer Science", totalMarks: 100, obtainedMarks: 88, grade: "A", remarks: "Good theoretical concepts" },
+
+    // Student 5: Usman Raza (Class 9 - Green, Class 4)
+    { id: 21, studentId: 5, studentName: "Usman Raza", rollNo: "BS-2024-105", classId: 4, examType: "Mid-Term", subject: "Physics", totalMarks: 100, obtainedMarks: 65, grade: "C", remarks: "Needs more numerical practice" },
+    { id: 22, studentId: 5, studentName: "Usman Raza", rollNo: "BS-2024-105", classId: 4, examType: "Mid-Term", subject: "Mathematics", totalMarks: 100, obtainedMarks: 70, grade: "B", remarks: "Satisfactory improvement" },
+    { id: 23, studentId: 5, studentName: "Usman Raza", rollNo: "BS-2024-105", classId: 4, examType: "Mid-Term", subject: "Chemistry", totalMarks: 100, obtainedMarks: 68, grade: "C", remarks: "Attend extra coaching" },
+    { id: 24, studentId: 5, studentName: "Usman Raza", rollNo: "BS-2024-105", classId: 4, examType: "Mid-Term", subject: "English Literature", totalMarks: 100, obtainedMarks: 72, grade: "B", remarks: "Grammar improving" },
+    { id: 25, studentId: 5, studentName: "Usman Raza", rollNo: "BS-2024-105", classId: 4, examType: "Mid-Term", subject: "Computer Science", totalMarks: 100, obtainedMarks: 74, grade: "B", remarks: "Practice algorithms" },
   ];
 
   private timetable: TimetableRecord[] = [
@@ -1010,6 +1043,7 @@ class SchoolStore {
   ];
 
   private teacherSalaries: TeacherSalaryRecord[] = [
+    // --- Current Month (November 2026) ---
     {
       id: 1,
       teacherId: 1,
@@ -1029,6 +1063,8 @@ class SchoolStore {
       grossSalary: 98000,
       totalDeductions: 9500,
       netSalary: 88500,
+      paidAmount: 88500,
+      remainingSalary: 0,
       status: "paid",
       paymentDate: "2026-11-02",
       paymentMethod: "HBL Direct Corporate Transfer",
@@ -1055,6 +1091,8 @@ class SchoolStore {
       grossSalary: 88000,
       totalDeductions: 8300,
       netSalary: 79700,
+      paidAmount: 79700,
+      remainingSalary: 0,
       status: "paid",
       paymentDate: "2026-11-02",
       paymentMethod: "HBL Direct Corporate Transfer",
@@ -1081,8 +1119,14 @@ class SchoolStore {
       grossSalary: 77000,
       totalDeductions: 8500,
       netSalary: 68500,
-      status: "pending",
-      remarks: "Pending month-end clearance for unannounced absence",
+      paidAmount: 25000,
+      remainingSalary: 43500,
+      advanceAmount: 25000,
+      advanceDate: "2026-11-05",
+      status: "advance",
+      paymentMethod: "Bank Transfer",
+      transactionRef: "ADV-2026-11-003",
+      remarks: "Advance salary of Rs. 25,000 disbursed on request. Remaining balance: Rs. 43,500.",
       createdAt: "2026-11-01T09:00:00Z",
     },
     {
@@ -1104,10 +1148,12 @@ class SchoolStore {
       grossSalary: 75000,
       totalDeductions: 6000,
       netSalary: 69000,
+      paidAmount: 0,
+      remainingSalary: 69000,
       status: "processing",
       paymentMethod: "Bank Cheque",
       transactionRef: "CHQ-98102",
-      remarks: "Cheque #CHQ-98102 prepared at accounts office",
+      remarks: "Cheque #CHQ-98102 prepared at accounts office, awaiting signature",
       createdAt: "2026-11-01T09:00:00Z",
     },
     {
@@ -1129,12 +1175,153 @@ class SchoolStore {
       grossSalary: 73500,
       totalDeductions: 5500,
       netSalary: 68000,
-      status: "paid",
-      paymentDate: "2026-11-02",
-      paymentMethod: "HBL Direct Corporate Transfer",
-      transactionRef: "SAL-2026-11-005",
-      remarks: "Includes IT lab maintenance bonus",
+      paidAmount: 0,
+      remainingSalary: 68000,
+      status: "pending",
+      remarks: "Pending administrative release",
       createdAt: "2026-11-01T09:00:00Z",
+    },
+
+    // --- Past History: October 2026 ---
+    {
+      id: 6,
+      teacherId: 1,
+      teacherName: "Sir Tariq Aziz",
+      employeeId: "TCH-001",
+      designation: "Head of Sciences & Senior Lecturer",
+      month: "October",
+      year: 2026,
+      basicSalary: 75000,
+      medicalAllowance: 6000,
+      houseRentAllowance: 12000,
+      transportAllowance: 5000,
+      bonus: 0,
+      taxDeduction: 4500,
+      absenceDeduction: 0,
+      providentFund: 5000,
+      grossSalary: 98000,
+      totalDeductions: 9500,
+      netSalary: 88500,
+      paidAmount: 88500,
+      remainingSalary: 0,
+      status: "paid",
+      paymentDate: "2026-10-02",
+      paymentMethod: "HBL Direct Corporate Transfer",
+      transactionRef: "SAL-2026-10-001",
+      remarks: "October salary cleared in full",
+      createdAt: "2026-10-01T09:00:00Z",
+    },
+    {
+      id: 7,
+      teacherId: 2,
+      teacherName: "Madam Farzana Kausar",
+      employeeId: "TCH-002",
+      designation: "Senior Mathematics Specialist",
+      month: "October",
+      year: 2026,
+      basicSalary: 68000,
+      medicalAllowance: 5000,
+      houseRentAllowance: 10000,
+      transportAllowance: 5000,
+      bonus: 0,
+      taxDeduction: 3800,
+      absenceDeduction: 0,
+      providentFund: 4500,
+      grossSalary: 88000,
+      totalDeductions: 8300,
+      netSalary: 79700,
+      paidAmount: 79700,
+      remainingSalary: 0,
+      status: "paid",
+      paymentDate: "2026-10-02",
+      paymentMethod: "HBL Direct Corporate Transfer",
+      transactionRef: "SAL-2026-10-002",
+      remarks: "October salary cleared in full",
+      createdAt: "2026-10-01T09:00:00Z",
+    },
+    {
+      id: 8,
+      teacherId: 3,
+      teacherName: "Sir Usman Ali",
+      employeeId: "TCH-003",
+      designation: "Subject Specialist",
+      month: "October",
+      year: 2026,
+      basicSalary: 60000,
+      medicalAllowance: 5000,
+      houseRentAllowance: 8000,
+      transportAllowance: 4000,
+      bonus: 0,
+      taxDeduction: 2500,
+      absenceDeduction: 0,
+      providentFund: 4000,
+      grossSalary: 77000,
+      totalDeductions: 6500,
+      netSalary: 70500,
+      paidAmount: 70500,
+      remainingSalary: 0,
+      status: "paid",
+      paymentDate: "2026-10-02",
+      paymentMethod: "Bank Transfer",
+      transactionRef: "SAL-2026-10-003",
+      remarks: "October salary cleared in full",
+      createdAt: "2026-10-01T09:00:00Z",
+    },
+    {
+      id: 9,
+      teacherId: 4,
+      teacherName: "Sir Rashid Minhas",
+      employeeId: "TCH-004",
+      designation: "Senior Teacher",
+      month: "October",
+      year: 2026,
+      basicSalary: 58000,
+      medicalAllowance: 5000,
+      houseRentAllowance: 8000,
+      transportAllowance: 4000,
+      bonus: 0,
+      taxDeduction: 2200,
+      absenceDeduction: 0,
+      providentFund: 3800,
+      grossSalary: 75000,
+      totalDeductions: 6000,
+      netSalary: 69000,
+      paidAmount: 69000,
+      remainingSalary: 0,
+      status: "paid",
+      paymentDate: "2026-10-02",
+      paymentMethod: "Bank Transfer",
+      transactionRef: "SAL-2026-10-004",
+      remarks: "October salary cleared in full",
+      createdAt: "2026-10-01T09:00:00Z",
+    },
+    {
+      id: 10,
+      teacherId: 5,
+      teacherName: "Engr. Zeeshan Haider",
+      employeeId: "TCH-005",
+      designation: "Computer Lab In-Charge",
+      month: "October",
+      year: 2026,
+      basicSalary: 55000,
+      medicalAllowance: 5000,
+      houseRentAllowance: 7000,
+      transportAllowance: 4000,
+      bonus: 0,
+      taxDeduction: 2000,
+      absenceDeduction: 0,
+      providentFund: 3500,
+      grossSalary: 71000,
+      totalDeductions: 5500,
+      netSalary: 65500,
+      paidAmount: 65500,
+      remainingSalary: 0,
+      status: "paid",
+      paymentDate: "2026-10-02",
+      paymentMethod: "HBL Direct Corporate Transfer",
+      transactionRef: "SAL-2026-10-005",
+      remarks: "October salary cleared in full",
+      createdAt: "2026-10-01T09:00:00Z",
     },
   ];
 
@@ -2568,17 +2755,21 @@ class SchoolStore {
 
   disburseTeacherSalary(
     id: number,
-    data: { paymentMethod: string; transactionRef?: string; paymentDate: string; remarks?: string },
+    data: { paymentMethod: string; transactionRef?: string; paymentDate: string; remarks?: string; amount?: number },
     admin?: { id: number; name: string }
   ): TeacherSalaryRecord {
     const idx = this.teacherSalaries.findIndex((s) => s.id === id);
     if (idx === -1) throw new Error("Teacher salary record not found.");
 
-    this.teacherSalaries[idx].status = "paid";
-    this.teacherSalaries[idx].paymentDate = data.paymentDate || new Date().toISOString().split("T")[0];
-    this.teacherSalaries[idx].paymentMethod = data.paymentMethod || "Bank Transfer";
-    if (data.transactionRef) this.teacherSalaries[idx].transactionRef = data.transactionRef;
-    if (data.remarks) this.teacherSalaries[idx].remarks = data.remarks;
+    const rec = this.teacherSalaries[idx];
+    const amountToPay = data.amount !== undefined ? data.amount : (rec.remainingSalary !== undefined ? rec.remainingSalary : rec.netSalary);
+    rec.paidAmount = (rec.paidAmount || 0) + amountToPay;
+    rec.remainingSalary = Math.max(0, rec.netSalary - rec.paidAmount);
+    rec.status = rec.remainingSalary === 0 ? "paid" : "advance";
+    rec.paymentDate = data.paymentDate || new Date().toISOString().split("T")[0];
+    rec.paymentMethod = data.paymentMethod || "Bank Transfer";
+    if (data.transactionRef) rec.transactionRef = data.transactionRef;
+    if (data.remarks) rec.remarks = data.remarks;
 
     if (admin) {
       this.logAudit({
@@ -2588,12 +2779,44 @@ class SchoolStore {
         action: "OVERRIDE",
         entityType: "SALARIES",
         entityId: id,
-        newValue: `Disbursed salary of Rs. ${this.teacherSalaries[idx].netSalary.toLocaleString()} to ${this.teacherSalaries[idx].teacherName} (${data.paymentMethod})`,
+        newValue: `Disbursed salary of Rs. ${amountToPay.toLocaleString()} to ${rec.teacherName} (${rec.paymentMethod})`,
       });
     }
 
-    dbBridge.persistSalary(this.teacherSalaries[idx]);
-    return this.teacherSalaries[idx];
+    dbBridge.persistSalary(rec);
+    return rec;
+  }
+
+  recordTeacherAdvance(
+    id: number,
+    data: { advanceAmount: number; advanceDate: string; remarks?: string },
+    admin?: { id: number; name: string }
+  ): TeacherSalaryRecord {
+    const idx = this.teacherSalaries.findIndex((s) => s.id === id);
+    if (idx === -1) throw new Error("Teacher salary record not found.");
+
+    const rec = this.teacherSalaries[idx];
+    rec.advanceAmount = (rec.advanceAmount || 0) + data.advanceAmount;
+    rec.advanceDate = data.advanceDate || new Date().toISOString().split("T")[0];
+    rec.paidAmount = (rec.paidAmount || 0) + data.advanceAmount;
+    rec.remainingSalary = Math.max(0, rec.netSalary - rec.paidAmount);
+    rec.status = rec.remainingSalary === 0 ? "paid" : "advance";
+    if (data.remarks) rec.remarks = data.remarks;
+
+    if (admin) {
+      this.logAudit({
+        actorId: admin.id,
+        actorName: admin.name,
+        actorRole: "admin",
+        action: "OVERRIDE",
+        entityType: "SALARIES",
+        entityId: id,
+        newValue: `Recorded salary advance of Rs. ${data.advanceAmount.toLocaleString()} to ${rec.teacherName}`,
+      });
+    }
+
+    dbBridge.persistSalary(rec);
+    return rec;
   }
 
   updateTeacherSalary(
@@ -2777,6 +3000,198 @@ class SchoolStore {
       totalCollectedPKR: totalCollected,
       pendingFeesPKR: pendingFees,
       attendanceRate,
+    };
+  }
+
+  getPerformanceAnalytics() {
+    const activeStudents = this.students.filter((s) => !s.isDeleted);
+    const activeClasses = this.classes.filter((c) => !c.isDeleted);
+    const activeTeachers = this.teachers.filter((t) => !t.isDeleted);
+
+    // Whole School Metrics
+    let totalMarksSum = 0;
+    let obtainedMarksSum = 0;
+    const gradeDistribution: Record<string, number> = { "A+": 0, "A": 0, "B": 0, "C": 0, "D": 0, "F": 0 };
+    const subjectMap: Record<string, { total: number; count: number; name: string }> = {};
+
+    this.marks.forEach((m) => {
+      totalMarksSum += m.totalMarks;
+      obtainedMarksSum += m.obtainedMarks;
+      const pct = Math.round((m.obtainedMarks / (m.totalMarks || 100)) * 100);
+      let g = "F";
+      if (pct >= 90) g = "A+";
+      else if (pct >= 80) g = "A";
+      else if (pct >= 70) g = "B";
+      else if (pct >= 60) g = "C";
+      else if (pct >= 50) g = "D";
+
+      gradeDistribution[g] = (gradeDistribution[g] || 0) + 1;
+
+      if (!subjectMap[m.subject]) {
+        subjectMap[m.subject] = { total: 0, count: 0, name: m.subject };
+      }
+      subjectMap[m.subject].total += pct;
+      subjectMap[m.subject].count += 1;
+    });
+
+    const schoolAveragePct = totalMarksSum > 0 ? Math.round((obtainedMarksSum / totalMarksSum) * 100) : 85;
+    const totalGrades = Object.values(gradeDistribution).reduce((a, b) => a + b, 0) || 1;
+    const passedGrades = (gradeDistribution["A+"] || 0) + (gradeDistribution["A"] || 0) + (gradeDistribution["B"] || 0) + (gradeDistribution["C"] || 0) + (gradeDistribution["D"] || 0);
+    const schoolPassRate = Math.round((passedGrades / totalGrades) * 100);
+
+    const subjectAverages = Object.values(subjectMap).map((s) => ({
+      subject: s.name,
+      averagePct: Math.round(s.total / s.count),
+      evaluationsCount: s.count,
+    }));
+
+    // Class-wise Analytics
+    const classAnalytics = activeClasses.map((cls) => {
+      const clsStudents = activeStudents.filter((s) => s.classId === cls.id);
+      const studentIds = clsStudents.map((s) => s.id);
+      const clsMarks = this.marks.filter((m) => studentIds.includes(m.studentId));
+
+      let clsTot = 0;
+      let clsObt = 0;
+      const clsSubMap: Record<string, { total: number; count: number }> = {};
+      const studentRanks = clsStudents.map((st) => {
+        const sMarks = clsMarks.filter((m) => m.studentId === st.id);
+        const sTot = sMarks.reduce((a, b) => a + b.totalMarks, 0) || 100;
+        const sObt = sMarks.reduce((a, b) => a + b.obtainedMarks, 0) || 0;
+        const sPct = sMarks.length > 0 ? Math.round((sObt / sTot) * 100) : 0;
+        let sGrade = "F";
+        if (sPct >= 90) sGrade = "A+";
+        else if (sPct >= 80) sGrade = "A";
+        else if (sPct >= 70) sGrade = "B";
+        else if (sPct >= 60) sGrade = "C";
+        else if (sPct >= 50) sGrade = "D";
+
+        return {
+          studentId: st.id,
+          name: st.fullName,
+          rollNo: st.rollNo,
+          obtainedMarks: sObt,
+          totalMarks: sTot,
+          percentage: sPct,
+          grade: sGrade,
+          passed: sPct >= 40,
+        };
+      }).sort((a, b) => b.percentage - a.percentage);
+
+      clsMarks.forEach((m) => {
+        clsTot += m.totalMarks;
+        clsObt += m.obtainedMarks;
+        const p = Math.round((m.obtainedMarks / (m.totalMarks || 100)) * 100);
+        if (!clsSubMap[m.subject]) clsSubMap[m.subject] = { total: 0, count: 0 };
+        clsSubMap[m.subject].total += p;
+        clsSubMap[m.subject].count += 1;
+      });
+
+      const clsAvg = clsTot > 0 ? Math.round((clsObt / clsTot) * 100) : 80;
+      const passedCount = studentRanks.filter((s) => s.passed).length;
+      const passRate = studentRanks.length > 0 ? Math.round((passedCount / studentRanks.length) * 100) : 100;
+
+      const clsSubjects = Object.entries(clsSubMap).map(([subj, val]) => ({
+        subject: subj,
+        averagePct: Math.round(val.total / (val.count || 1)),
+      }));
+
+      return {
+        classId: cls.id,
+        className: `${cls.name} (${cls.section})`,
+        studentCount: clsStudents.length,
+        averagePct: clsAvg,
+        passRate,
+        subjects: clsSubjects,
+        rankings: studentRanks,
+      };
+    });
+
+    // Individual Student Analytics List
+    const individualAnalytics = activeStudents.map((st) => {
+      const sMarks = this.marks.filter((m) => m.studentId === st.id);
+      const totalPossible = sMarks.reduce((a, b) => a + b.totalMarks, 0) || 500;
+      const totalObtained = sMarks.reduce((a, b) => a + b.obtainedMarks, 0) || 0;
+      const pct = sMarks.length > 0 ? Math.round((totalObtained / totalPossible) * 100) : 0;
+      let grade = "F";
+      if (pct >= 90) grade = "A+";
+      else if (pct >= 80) grade = "A";
+      else if (pct >= 70) grade = "B";
+      else if (pct >= 60) grade = "C";
+      else if (pct >= 50) grade = "D";
+
+      const subjectBreakdown = sMarks.map((m) => ({
+        subject: m.subject,
+        obtained: m.obtainedMarks,
+        total: m.totalMarks,
+        percentage: Math.round((m.obtainedMarks / m.totalMarks) * 100),
+        grade: m.grade,
+        remarks: m.remarks,
+      }));
+
+      return {
+        studentId: st.id,
+        name: st.fullName,
+        rollNo: st.rollNo,
+        classId: st.classId,
+        className: st.className,
+        obtainedMarks: totalObtained,
+        totalMarks: totalPossible,
+        percentage: pct,
+        grade,
+        passed: pct >= 40,
+        subjects: subjectBreakdown,
+      };
+    });
+
+    // Teacher Performance Analytics
+    const teacherAnalytics = activeTeachers.map((tch) => {
+      const tchAttendance = this.teacherAttendance.filter((ta) => ta.teacherId === tch.id);
+      const presentCount = tchAttendance.filter((ta) => ta.status === "present").length;
+      const attendanceRate = tchAttendance.length > 0 ? Math.round((presentCount / tchAttendance.length) * 100) : 95;
+
+      const assignments = this.getTeacherAssignments({ teacherId: tch.id });
+      const assignedSubjects = [...new Set(assignments.map((a) => a.subjectName))];
+      const assignedClasses = [...new Set(assignments.map((a) => a.className))];
+
+      // Calculate student score average in subjects taught by this teacher
+      const taughtMarks = this.marks.filter((m) =>
+        assignedSubjects.some((s) => s.toLowerCase() === m.subject.toLowerCase())
+      );
+      const studentAvg = taughtMarks.length > 0
+        ? Math.round(
+            taughtMarks.reduce((sum, m) => sum + (m.obtainedMarks / m.totalMarks) * 100, 0) / taughtMarks.length
+          )
+        : 86;
+
+      const leaves = this.teacherLeaves.filter((l) => l.teacherId === tch.id && l.status === "approved").length;
+
+      return {
+        teacherId: tch.id,
+        name: tch.fullName,
+        designation: tch.designation,
+        employeeId: tch.employeeId,
+        attendanceRate,
+        totalClassesCount: assignedClasses.length || 2,
+        assignedClasses,
+        assignedSubjects,
+        studentAverageScore: studentAvg,
+        approvedLeavesCount: leaves,
+        rating: studentAvg >= 85 ? "Excellent" : studentAvg >= 75 ? "Very Good" : "Good",
+      };
+    });
+
+    return {
+      wholeSchool: {
+        totalEvaluatedStudents: individualAnalytics.filter((s) => s.subjects.length > 0).length,
+        schoolAveragePct,
+        schoolPassRate,
+        gradeDistribution,
+        subjectAverages,
+      },
+      classWise: classAnalytics,
+      individualStudents: individualAnalytics,
+      teachers: teacherAnalytics,
     };
   }
 }

@@ -1057,6 +1057,30 @@ export function updateTeacherSalary(req: Request, res: Response): void {
   }
 }
 
+export function recordTeacherAdvance(req: Request, res: Response): void {
+  const id = getId(req.params.id);
+  const { advanceAmount, advanceDate, remarks } = req.body;
+  if (!advanceAmount || advanceAmount <= 0) {
+    res.status(400).json({ message: "Valid advance amount is required." });
+    return;
+  }
+  const admin = getActor(req);
+  try {
+    const updated = store.recordTeacherAdvance(
+      id,
+      {
+        advanceAmount: parseInt(advanceAmount, 10),
+        advanceDate: advanceDate || new Date().toISOString().split("T")[0],
+        remarks,
+      },
+      admin
+    );
+    res.status(200).json({ message: "Salary advance recorded successfully.", salary: updated });
+  } catch (err: any) {
+    res.status(400).json({ message: err.message || "Failed to record salary advance." });
+  }
+}
+
 export function getNotices(req: Request, res: Response): void {
   const audience = req.query.audience as string | undefined;
   res.status(200).json(store.getNotices(audience));
@@ -1100,6 +1124,10 @@ export function updateSettings(req: Request, res: Response): void {
 
 export function getStats(_req: Request, res: Response): void {
   res.status(200).json(store.getDashboardStats());
+}
+
+export function getPerformanceAnalytics(_req: Request, res: Response): void {
+  res.status(200).json(store.getPerformanceAnalytics());
 }
 
 export function getDefaulters(_req: Request, res: Response): void {

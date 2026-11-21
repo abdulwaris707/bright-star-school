@@ -94,6 +94,7 @@ import {
   generateMonthlyPayroll,
   disburseTeacherSalary,
   updateTeacherSalary,
+  recordTeacherAdvance,
   sendSmsBroadcast,
   getNotices,
   createNotice,
@@ -101,6 +102,7 @@ import {
   getSettings,
   updateSettings,
   getStats,
+  getPerformanceAnalytics,
 } from "../controllers/schoolController";
 
 const router = Router();
@@ -120,6 +122,7 @@ router.get("/health", async (_req: Request, res: Response) => {
 router.post("/auth/login", login);
 router.get("/auth/me", authMiddleware, getCurrentUser);
 router.get("/stats", optionalAuth, getStats);
+router.get("/analytics", optionalAuth, getPerformanceAnalytics);
 
 // =================================================================
 // MODULE 1: SUBJECTS CRUD
@@ -236,6 +239,7 @@ router.get("/salaries", authMiddleware, requireRoles(["admin", "teacher"]), getT
 router.get("/salaries/:id", authMiddleware, requireRoles(["admin", "teacher"]), getTeacherSalary);
 router.post("/salaries/generate", authMiddleware, requireRoles(["admin"]), generateMonthlyPayroll);
 router.post("/salaries/:id/disburse", authMiddleware, requireRoles(["admin"]), disburseTeacherSalary);
+router.post("/salaries/:id/advance", authMiddleware, requireRoles(["admin"]), recordTeacherAdvance);
 router.patch("/salaries/:id", authMiddleware, requireRoles(["admin"]), updateTeacherSalary);
 
 router.post("/sms/broadcast", authMiddleware, requireRoles(["admin"]), sendSmsBroadcast);

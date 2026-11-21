@@ -4,6 +4,7 @@ import DataTable from "../../components/ui/DataTable";
 import Badge from "../../components/ui/Badge";
 import Button from "../../components/ui/Button";
 import SmsBroadcastModal from "../../components/SmsBroadcastModal";
+import PerformanceAnalyticsView from "../../components/analytics/PerformanceAnalyticsView";
 import api, { apiFetch } from "../../lib/api";
 
 interface DashboardStats {
@@ -32,6 +33,7 @@ export const AdminDashboard: React.FC = () => {
   const [pendingLeavesCount, setPendingLeavesCount] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
+  const [dashboardTab, setDashboardTab] = useState<"overview" | "analytics">("overview");
 
   useEffect(() => {
     async function loadData() {
@@ -83,15 +85,51 @@ export const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Quick Governance Links & Live Security Code Banner */}
+      {/* View Switcher: Operations Overview vs Performance Analytics & Graphs */}
       <div
+        className="panel-card"
         style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: "12px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "var(--space-12)",
+          padding: "var(--space-10) var(--space-16)",
           marginBottom: "var(--space-20)",
         }}
       >
+        <div style={{ display: "flex", gap: "var(--space-8)" }}>
+          <Button
+            variant={dashboardTab === "overview" ? "primary" : "secondary"}
+            size="sm"
+            onClick={() => setDashboardTab("overview")}
+          >
+            Operations Overview
+          </Button>
+          <Button
+            variant={dashboardTab === "analytics" ? "primary" : "secondary"}
+            size="sm"
+            onClick={() => setDashboardTab("analytics")}
+          >
+            Academic &amp; Faculty Performance Graphs
+          </Button>
+        </div>
+        <Link to="/admin/analytics" style={{ fontSize: "var(--font-size-xs)" }}>
+          Full Analytics Screen &rarr;
+        </Link>
+      </div>
+
+      {dashboardTab === "overview" ? (
+        <>
+          {/* Quick Governance Links & Live Security Code Banner */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: "12px",
+              marginBottom: "var(--space-20)",
+            }}
+          >
         <Link to="/admin/teacher-attendance" style={{ textDecoration: "none" }}>
           <div className="stat-card" style={{ cursor: "pointer", transition: "var(--transition-fast)" }}>
             <div className="stat-label">Faculty Check-In PIN</div>
@@ -262,6 +300,10 @@ export const AdminDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+        </>
+      ) : (
+        <PerformanceAnalyticsView />
+      )}
 
       {/* SMS Broadcast Modal */}
       <SmsBroadcastModal

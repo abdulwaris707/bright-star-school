@@ -78,6 +78,7 @@ export const FeesPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"all" | "proofs" | "defaulters">("all");
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [feeSearch, setFeeSearch] = useState("");
   const [feedbackMsg, setFeedbackMsg] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
   // Modals
@@ -330,12 +331,22 @@ export const FeesPage: React.FC = () => {
   const pendingProofsCount = scopeFees.filter((f) => f.status === "verification_pending").length;
   const defaultersCount = scopeFees.filter((f) => f.status === "overdue").length;
 
-  // Filter based on active tab, status dropdown, and student filter within the selected class scope
+  // Filter based on active tab, status dropdown, student filter, and search query
   const filteredFees = scopeFees.filter((f) => {
     if (activeTab === "proofs") return f.status === "verification_pending";
     if (activeTab === "defaulters") return f.status === "overdue";
     if (activeTab === "all" && statusFilter !== "all" && f.status !== statusFilter) return false;
     if (studentFilter !== "all" && f.studentId !== parseInt(studentFilter, 10)) return false;
+
+    if (feeSearch.trim()) {
+      const q = feeSearch.toLowerCase();
+      const matchName = f.studentName.toLowerCase().includes(q);
+      const matchRoll = f.rollNo.toLowerCase().includes(q);
+      const matchChallan = f.challanNo.toLowerCase().includes(q);
+      const matchClass = f.className.toLowerCase().includes(q);
+      if (!matchName && !matchRoll && !matchChallan && !matchClass) return false;
+    }
+
     return true;
   });
 
@@ -447,8 +458,21 @@ export const FeesPage: React.FC = () => {
           </Button>
         </div>
 
-        {/* Class Scope, Student & Status Filters */}
-        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
+        {/* Class Scope, Student, Search & Status Filters */}
+        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center", flex: 1 }}>
+          {/* Dynamic Search Box (Whole School vs Specific Class) */}
+          <div style={{ minWidth: "240px", flex: 1 }}>
+            <Input
+              placeholder={
+                classFilter === "all"
+                  ? "Search whole school by student, roll #, challan #..."
+                  : `Search within ${selectedClassLabel}...`
+              }
+              value={feeSearch}
+              onChange={(e) => setFeeSearch(e.target.value)}
+            />
+          </div>
+
           {/* Class / Whole School Scope Selector */}
           <div style={{ minWidth: "220px" }}>
             <Select
@@ -631,8 +655,8 @@ export const FeesPage: React.FC = () => {
               key: "actions",
               header: "Actions & Verification",
               render: (row: FeeItem) => (
-                <div style={{ display: "flex", gap: "6px", alignItems: "center", flexWrap: "wrap" }}>
-                  {/* Review Proof Button (Appears if student submitted proof) */}
+                <div style={{ display: "flex", gap: "6px", alignItems: "center", whiteSpace: "nowrap" }}>
+                  {/* Primary Review Proof if submitted */}
                   {row.status === "verification_pending" && (
                     <Button
                       variant="primary"
@@ -644,7 +668,7 @@ export const FeesPage: React.FC = () => {
                     </Button>
                   )}
 
-                  {/* View 3-Copy Challan or Paid Receipt */}
+                  {/* Primary Voucher / Receipt View */}
                   <Button
                     variant="secondary"
                     size="sm"
@@ -671,7 +695,7 @@ export const FeesPage: React.FC = () => {
                       })
                     }
                   >
-                    {row.status === "paid" ? "View Paid Receipt" : "View 3-Copy Voucher"}
+                    {row.status === "paid" ? "Paid Receipt" : "3-Copy Voucher"}
                   </Button>
 
                   {/* Manual Cash Mark Paid */}

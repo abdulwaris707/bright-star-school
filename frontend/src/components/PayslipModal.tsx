@@ -23,7 +23,11 @@ export interface TeacherSalaryData {
   grossSalary: number;
   totalDeductions: number;
   netSalary: number;
-  status: "paid" | "pending" | "processing";
+  paidAmount?: number;
+  remainingSalary?: number;
+  advanceAmount?: number;
+  advanceDate?: string;
+  status: "paid" | "pending" | "processing" | "advance";
   paymentDate?: string;
   paymentMethod?: string;
   transactionRef?: string;
@@ -215,21 +219,32 @@ export const PayslipModal: React.FC<PayslipModalProps> = ({ isOpen, onClose, sal
           >
             <div>
               <div style={{ fontSize: "11px", textTransform: "uppercase", fontWeight: 700, color: "var(--color-text-muted)" }}>
-                Net Disbursed Take-Home Salary
+                Net Take-Home Salary
               </div>
               <div style={{ fontSize: "24px", fontWeight: 800, color: salary.status === "paid" ? "#16a34a" : "var(--color-text)" }}>
                 PKR {salary.netSalary.toLocaleString()}
               </div>
+              {salary.advanceAmount ? (
+                <div style={{ fontSize: "11px", color: "#d97706", marginTop: "4px" }}>
+                  Advance Received: Rs. {salary.advanceAmount.toLocaleString()} ({salary.advanceDate || "Recorded"}) &bull; Remaining: Rs. {(salary.remainingSalary ?? (salary.netSalary - salary.advanceAmount)).toLocaleString()}
+                </div>
+              ) : null}
             </div>
-            {salary.status === "paid" && (
+            {salary.status === "paid" ? (
               <div style={{ textAlign: "right", fontSize: "11px" }}>
-                <div style={{ fontWeight: 700, color: "#16a34a" }}>PAID &bull; {salary.paymentMethod || "Bank Transfer"}</div>
+                <div style={{ fontWeight: 700, color: "#16a34a" }}>PAID IN FULL &bull; {salary.paymentMethod || "Bank Transfer"}</div>
                 <div style={{ color: "var(--color-text-muted)" }}>Date: {salary.paymentDate || "Verified"}</div>
                 {salary.transactionRef && (
                   <div style={{ fontFamily: "monospace", fontWeight: 600 }}>Ref: {salary.transactionRef}</div>
                 )}
               </div>
-            )}
+            ) : salary.status === "advance" ? (
+              <div style={{ textAlign: "right", fontSize: "11px" }}>
+                <div style={{ fontWeight: 700, color: "#d97706" }}>ADVANCE DISBURSED</div>
+                <div style={{ color: "var(--color-text-muted)" }}>Paid: Rs. {(salary.paidAmount || salary.advanceAmount || 0).toLocaleString()}</div>
+                <div style={{ color: "var(--color-danger)", fontWeight: 600 }}>Pending: Rs. {(salary.remainingSalary ?? 0).toLocaleString()}</div>
+              </div>
+            ) : null}
           </div>
 
           {/* Signatures */}

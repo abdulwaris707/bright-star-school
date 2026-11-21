@@ -43,6 +43,8 @@ export const StudentsPage: React.FC = () => {
   const [transferReason, setTransferReason] = useState<string>("");
   const [idCardTarget, setIdCardTarget] = useState<StudentIdCardData | null>(null);
   const [reportCardTarget, setReportCardTarget] = useState<ReportCardData | null>(null);
+  const [historyTarget, setHistoryTarget] = useState<Student | null>(null);
+  const [classSearchText, setClassSearchText] = useState<string>("");
 
   // New Student Form State
   const [formData, setFormData] = useState({
@@ -82,11 +84,13 @@ export const StudentsPage: React.FC = () => {
 
   const openAddModal = () => {
     setEditingStudent(null);
+    const initialClass = allClasses.length > 0 ? `${allClasses[0].name} (${allClasses[0].section})` : "Class 10 (Blue)";
+    setClassSearchText(initialClass);
     setFormData({
       rollNo: `BS-2026-${Math.floor(100 + Math.random() * 900)}`,
       fullName: "",
-      className: "Class 10 - Blue",
-      section: "Blue",
+      className: allClasses.length > 0 ? allClasses[0].name : "Class 10 - Blue",
+      section: allClasses.length > 0 ? allClasses[0].section : "Blue",
       parentName: "",
       fatherCnic: "",
       bFormNo: "",
@@ -100,6 +104,7 @@ export const StudentsPage: React.FC = () => {
 
   const openEditModal = (student: Student) => {
     setEditingStudent(student);
+    setClassSearchText(`${student.className} (${student.section})`);
     setFormData({
       rollNo: student.rollNo,
       fullName: student.fullName,
@@ -275,7 +280,15 @@ export const StudentsPage: React.FC = () => {
               key: "actions",
               header: "Actions & Documents",
               render: (row) => (
-                <div style={{ display: "flex", gap: "var(--space-4)" }}>
+                <div style={{ display: "flex", gap: "6px", alignItems: "center", whiteSpace: "nowrap" }}>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => handleViewReportCard(row)}
+                    title="View official examination report card"
+                  >
+                    DMC / Report
+                  </Button>
                   <Button
                     variant="secondary"
                     size="sm"
@@ -292,44 +305,45 @@ export const StudentsPage: React.FC = () => {
                         bFormNo: row.bFormNo,
                       })
                     }
+                    title="Generate printable student ID card"
                   >
                     ID Card
                   </Button>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => handleViewReportCard(row)}
-                  >
-                    DMC / Report
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => openEditModal(row)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => handleToggleStatus(row)}
-                  >
-                    {row.status === "active" ? "Deactivate" : "Activate"}
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => openTransferModal(row)}
-                  >
-                    Transfer
-                  </Button>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => setDeleteTarget(row)}
-                  >
-                    Delete
-                  </Button>
+
+                  {/* Actions Dropdown for secondary management */}
+                  <div style={{ position: "relative", display: "inline-block" }}>
+                    <select
+                      aria-label="Student Actions"
+                      style={{
+                        background: "var(--color-bg-subtle)",
+                        color: "var(--color-text)",
+                        border: "1px solid var(--color-border)",
+                        borderRadius: "var(--radius)",
+                        padding: "4px 8px",
+                        fontSize: "11px",
+                        cursor: "pointer",
+                      }}
+                      value=""
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "history") setHistoryTarget(row);
+                        else if (val === "edit") openEditModal(row);
+                        else if (val === "transfer") openTransferModal(row);
+                        else if (val === "toggle") handleToggleStatus(row);
+                        else if (val === "delete") setDeleteTarget(row);
+                        e.target.value = "";
+                      }}
+                    >
+                      <option value="" disabled>More ▾</option>
+                      <option value="history">Lifelong History &amp; Dossier</option>
+                      <option value="edit">Edit Student Profile</option>
+                      <option value="transfer">Transfer Class Section</option>
+                      <option value="toggle">
+                        {row.status === "active" ? "Mark Inactive" : "Mark Active"}
+                      </option>
+                      <option value="delete">Delete Record</option>
+                    </select>
+                  </div>
                 </div>
               ),
             },
@@ -353,6 +367,103 @@ export const StudentsPage: React.FC = () => {
         onClose={() => setReportCardTarget(null)}
         report={reportCardTarget}
       />
+
+      {/* Student Lifelong History & Dossier Modal */}
+      <Modal
+        isOpen={Boolean(historyTarget)}
+        onClose={() => setHistoryTarget(null)}
+        title={`Student Lifelong History Dossier • ${historyTarget?.fullName}`}
+        maxWidth="680px"
+        footer={
+          <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+            <span style={{ fontSize: "11px", color: "var(--color-text-muted)" }}>
+              All records are stored permanently in the institution database unless deleted.
+            </span>
+            <Button variant="secondary" size="sm" onClick={() => setHistoryTarget(null)}>
+              Close Dossier
+            </Button>
+          </div>
+        }
+      >
+        {historyTarget && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "12px",
+                padding: "14px 18px",
+                backgroundColor: "var(--color-bg-subtle)",
+                borderRadius: "var(--radius-md)",
+                border: "1px solid var(--color-border)",
+                fontSize: "12px",
+              }}
+            >
+              <div>
+                <div><span style={{ color: "var(--color-text-muted)" }}>Full Name:</span> <strong>{historyTarget.fullName}</strong></div>
+                <div style={{ marginTop: "4px" }}>
+                  <span style={{ color: "var(--color-text-muted)" }}>Roll Number:</span> <code>{historyTarget.rollNo}</code>
+                </div>
+                <div style={{ marginTop: "4px" }}>
+                  <span style={{ color: "var(--color-text-muted)" }}>Admission Date:</span> {historyTarget.admissionDate || "2024-03-15"}
+                </div>
+                <div style={{ marginTop: "4px" }}>
+                  <span style={{ color: "var(--color-text-muted)" }}>Blood Group:</span> {historyTarget.bloodGroup || "O+"}
+                </div>
+              </div>
+              <div>
+                <div><span style={{ color: "var(--color-text-muted)" }}>Class &amp; Section:</span> <strong>{historyTarget.className}</strong> ({historyTarget.section})</div>
+                <div style={{ marginTop: "4px" }}>
+                  <span style={{ color: "var(--color-text-muted)" }}>Father Name:</span> {historyTarget.parentName}
+                </div>
+                <div style={{ marginTop: "4px" }}>
+                  <span style={{ color: "var(--color-text-muted)" }}>Father CNIC:</span> {historyTarget.fatherCnic || "35202-*******-1"}
+                </div>
+                <div style={{ marginTop: "4px" }}>
+                  <span style={{ color: "var(--color-text-muted)" }}>B-Form Number:</span> {historyTarget.bFormNo || "35202-*******-1"}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", padding: "14px" }}>
+              <div style={{ fontSize: "13px", fontWeight: 700, marginBottom: "8px" }}>Academic Standing &amp; Conduct History</div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "10px", fontSize: "12px" }}>
+                <div style={{ padding: "8px", background: "var(--color-bg-subtle)", borderRadius: "4px" }}>
+                  <div style={{ color: "var(--color-text-muted)", fontSize: "11px" }}>Current Status</div>
+                  <strong style={{ color: historyTarget.status === "active" ? "#16a34a" : "var(--color-danger)" }}>
+                    {historyTarget.status.toUpperCase()}
+                  </strong>
+                </div>
+                <div style={{ padding: "8px", background: "var(--color-bg-subtle)", borderRadius: "4px" }}>
+                  <div style={{ color: "var(--color-text-muted)", fontSize: "11px" }}>Concession Category</div>
+                  <strong>{historyTarget.concessionType || "Regular Fee"}</strong>
+                </div>
+                <div style={{ padding: "8px", background: "var(--color-bg-subtle)", borderRadius: "4px" }}>
+                  <div style={{ color: "var(--color-text-muted)", fontSize: "11px" }}>Registered Phone</div>
+                  <strong>{historyTarget.phone}</strong>
+                </div>
+                <div style={{ padding: "8px", background: "var(--color-bg-subtle)", borderRadius: "4px" }}>
+                  <div style={{ color: "var(--color-text-muted)", fontSize: "11px" }}>Residential Address</div>
+                  <strong style={{ fontSize: "11px" }}>{historyTarget.address || "Lahore, Pakistan"}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => {
+                  setHistoryTarget(null);
+                  handleViewReportCard(historyTarget);
+                }}
+              >
+                View Detailed Marks &amp; Report Card &rarr;
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
 
       {/* Add / Edit Student Modal */}
       <Modal
@@ -397,14 +508,87 @@ export const StudentsPage: React.FC = () => {
             />
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-12)" }}>
-            <Input
-              label="Class &amp; Section"
-              value={formData.className}
-              onChange={(e) => setFormData({ ...formData, className: e.target.value })}
-            />
+          <div style={{ display: "grid", gridTemplateColumns: "1.4fr 0.6fr", gap: "var(--space-12)" }}>
+            <div>
+              <label style={{ display: "block", fontSize: "var(--font-size-xs)", fontWeight: 500, marginBottom: "var(--space-4)" }}>
+                Class Selection (Type or Choose from List)
+              </label>
+              <div style={{ display: "flex", gap: "4px" }}>
+                <input
+                  list="classes-datalist"
+                  placeholder="Type class name or select from list..."
+                  value={classSearchText}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setClassSearchText(val);
+                    const matched = allClasses.find(
+                      (c) =>
+                        `${c.name} (${c.section})`.toLowerCase() === val.toLowerCase() ||
+                        c.name.toLowerCase() === val.toLowerCase()
+                    );
+                    if (matched) {
+                      setFormData({
+                        ...formData,
+                        className: matched.name,
+                        section: matched.section,
+                      });
+                    } else {
+                      setFormData({ ...formData, className: val });
+                    }
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: "var(--space-8) var(--space-12)",
+                    borderRadius: "var(--radius)",
+                    border: "1px solid var(--color-border)",
+                    backgroundColor: "var(--color-bg)",
+                    color: "var(--color-text)",
+                    fontSize: "var(--font-size-sm)",
+                  }}
+                />
+                <select
+                  aria-label="Available classes dropdown"
+                  style={{
+                    padding: "var(--space-8)",
+                    borderRadius: "var(--radius)",
+                    border: "1px solid var(--color-border)",
+                    backgroundColor: "var(--color-bg-subtle)",
+                    color: "var(--color-text)",
+                    cursor: "pointer",
+                  }}
+                  value=""
+                  onChange={(e) => {
+                    const selectedId = parseInt(e.target.value, 10);
+                    const matched = allClasses.find((c) => c.id === selectedId);
+                    if (matched) {
+                      setClassSearchText(`${matched.name} (${matched.section})`);
+                      setFormData({
+                        ...formData,
+                        className: matched.name,
+                        section: matched.section,
+                      });
+                    }
+                    e.target.value = "";
+                  }}
+                  title="Click to pick a class directly"
+                >
+                  <option value="" disabled>▾ All Classes</option>
+                  {allClasses.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name} ({c.section})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <datalist id="classes-datalist">
+                {allClasses.map((c) => (
+                  <option key={c.id} value={`${c.name} (${c.section})`} />
+                ))}
+              </datalist>
+            </div>
+
             <Select
-              label="Section"
+              label="Assigned Section"
               value={formData.section}
               onChange={(e) => setFormData({ ...formData, section: e.target.value })}
               options={[

@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AnalyticsPage from "./pages/admin/AnalyticsPage";
 import StudentsPage from "./pages/admin/StudentsPage";
 import TeachersPage from "./pages/admin/TeachersPage";
 import ClassesPage from "./pages/admin/ClassesPage";
@@ -39,6 +40,7 @@ import StudentNoticesPage from "./pages/student/StudentNoticesPage";
 
 const ADMIN_NAV: NavItem[] = [
   { label: "Dashboard", path: "/admin" },
+  { label: "Analytics & Graphs", path: "/admin/analytics" },
   { label: "Students", path: "/admin/students" },
   { label: "Teachers", path: "/admin/teachers" },
   { label: "Classes & Mapping", path: "/admin/classes" },
@@ -89,6 +91,14 @@ export const App: React.FC = () => {
         element={
           <AppShell role="admin" navItems={ADMIN_NAV}>
             <AdminDashboard />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/admin/analytics"
+        element={
+          <AppShell role="admin" navItems={ADMIN_NAV}>
+            <AnalyticsPage />
           </AppShell>
         }
       />
